@@ -151,30 +151,18 @@ static void print_version(void)
   fprintf(stdout, "Compile-time options:\n%s\n", AIDECOMPILEOPTIONS);
   fprintf(stdout, "Default config values:\n");
   fprintf(stdout, "config file: %s\n", conf->config_file?conf->config_file:"<none>");
-  const char *database_in = NULL;
-  const char *database_out = NULL;
-  if (conf->database_in.url) {
-      database_in = conf->database_in.url->raw;
-  }
-  if (conf->database_out.url) {
-      database_out = conf->database_out.url->raw;
-  }
+  const char *database_in = conf->database_in.url ? conf->database_in.url->raw :
 #ifdef DEFAULT_DB
-  if (!database_in) {
-      database_in = DEFAULT_DB;
-  }
+      DEFAULT_DB;
+#else
+      "<none>";
 #endif
-  if (!database_in) {
-      database_in = "<none>";
-  }
+  const char *database_out = conf->database_out.url ? conf->database_out.url->raw :
 #ifdef DEFAULT_DB_OUT
-  if (!database_out) {
-      database_out = DEFAULT_DB_OUT;
-  }
+      DEFAULT_DB_OUT;
+#else
+      "<none>";
 #endif
-  if (!database_out) {
-      database_out = "<none>";
-  }
   fprintf(stdout, "database_in: %s\n", database_in);
   fprintf(stdout, "database_out: %s\n", database_out);
 
@@ -761,11 +749,7 @@ int main(int argc,char**argv)
 
   log_msg(LOG_LEVEL_INFO, "parse configuration");
   update_progress_status(PROGRESS_CONFIG, NULL);
-  char *config_path = conf->config_file;
-  if (config_override) {
-      config_path = config_override;
-  }
-  errorno=parse_config(before, config_path, after);
+  errorno=parse_config(before, conf->config_file, after);
   if (errorno==RETFAIL){
     exit(INVALID_CONFIGURELINE_ERROR);
   }
